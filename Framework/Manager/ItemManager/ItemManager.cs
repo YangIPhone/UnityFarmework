@@ -4,53 +4,55 @@ using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq ;
 
-public class Item
-{
-    public int id;
-    public string name;
-    public string des;
-    public int price;
-    public string icon;
-    public int attack;
-    public int hp;
-}
-public class ItemManager
-{
-    private static ItemManager instance;
-    public static ItemManager Instance
+namespace ChangQFramework{
+    public class Item
     {
-        get
-        {
-            if(instance == null)
-            {
-                instance = new ItemManager();
-            }
-            return instance;
-        }
+        public int id;
+        public string name;
+        public string des;
+        public int price;
+        public string icon;
+        public int attack;
+        public int hp;
     }
-
-    //所有的物品信息类
-    private Item[] items;
-
-    public ItemManager()
+    public class ItemManager
     {
-        //加载JSON数据
-        TextAsset itemJson = Resources.Load<TextAsset>("item");
-        //解析JSON
-        items = JsonConvert.DeserializeObject<Item[]>(itemJson.text);
-        //Debug.Log(items);
-    }
-
-    //通过物品ID取出物品
-    public Item GetItem(int id)
-    {
-        foreach(Item item in items)
+        private static ItemManager instance;
+        public static ItemManager Instance
         {
-            if(item.id == id)
+            get
             {
-                return item;
+                if(instance == null)
+                {
+                    instance = new ItemManager();
+                }
+                return instance;
             }
         }
-        return null;
+
+        //所有的物品信息类
+        private Item[] items;
+
+        public ItemManager()
+        {
+            //加载JSON数据
+            TextAsset itemJson = Resources.Load<TextAsset>("item");
+            //解析JSON
+            items = JsonConvert.DeserializeObject<Item[]>(itemJson.text);
+            //Debug.Log(items);
+        }
+
+        //通过物品ID取出物品
+        public Item GetItem(int id)
+        {
+            foreach(Item item in items)
+            {
+                if(item.id == id)
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
     }
 }
