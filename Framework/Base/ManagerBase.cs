@@ -5,15 +5,21 @@ namespace ChangQFramework{
     //约束传入的参数必须是MonoBase或MonoBase的子类
     public class ManagerBase<T> : MonoBase where T:MonoBase
     {
-        public static T Instance;
+        private static T instance;
+        public static T Instance{ get{return instance;} }
+        public static bool isInitialized{get{return instance != null;}}//是否已实例化
         //管理的消息接收者
         public List<MonoBase> ReceiveList = new List<MonoBase>();
         //当前管理器类接收的消息类型
         protected byte messageType;
         protected virtual void Awake()
         {
-            //所有继承自ManagerBase的管理器类都是单例
-            Instance = this as T;
+            if(instance != null){
+                Destroy(gameObject);
+            }else{
+                //所有继承自ManagerBase的管理器类都是单例
+                instance = this as T;
+            }
             //设置管理器类的消息类型
             messageType = SetMessageType();
             //将当前的管理类添加到消息中心

@@ -9,6 +9,8 @@ namespace ChangQFramework{
     {
         //声音管理器
         public static AudioManager m_Audio = AudioManager.Instance;
+        //角色管理器
+        public static CharacterManager  m_chracter = CharacterManager.Instance;
         //物品管理器
         public static ItemManager m_Item = ItemManager.Instance;
         //背包管理器

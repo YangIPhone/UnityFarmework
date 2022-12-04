@@ -37,5 +37,6 @@ namespace ChangQFramework{
         public static int UI_ShowPanel = 200;//打开面板
         public static int UI_AddScore = 201;//加分
         public static int UI_ShowShop = 202;//打开商店
+        public static int UI_AddItem = 203;//增加物品
     }
 }

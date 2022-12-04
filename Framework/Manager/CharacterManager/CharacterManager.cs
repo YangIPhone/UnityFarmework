@@ -39,6 +39,7 @@ namespace ChangQFramework{
         public static CharacterManager Instance{
             get{
                 if(instance == null){
+                    Debug.Log("创建实例");
                     instance = new CharacterManager();
                 }
                 return instance;
