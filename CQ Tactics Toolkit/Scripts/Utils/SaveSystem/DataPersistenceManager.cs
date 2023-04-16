@@ -3,8 +3,10 @@ using UnityEngine;
 using System.Linq;
 using Newtonsoft.Json;
 using System.IO;
+// using PixelCrushers.DialogueSystem;
 
-namespace CQTacticsToolkit.SaveSystem{
+namespace CQFramework.SaveSystem
+{
     public class DataPersistenceManager : MonoBehaviour
     {
         private GameData gameData;
@@ -17,10 +19,11 @@ namespace CQTacticsToolkit.SaveSystem{
         //当前存档索引
         private int currentDataIndex;
         public List<GameData> dataSlots = new List<GameData>(new GameData[3]);
-        public static DataPersistenceManager instance{get;private set;}
-        private void Awake() 
+        public static DataPersistenceManager instance { get; private set; }
+        private void Awake()
         {
-            if(instance != null){
+            if (instance != null)
+            {
                 Debug.LogError("已经存在一个DataPersistenceManager");
             }
             instance = this;
@@ -33,8 +36,22 @@ namespace CQTacticsToolkit.SaveSystem{
         //     LoadGame(1);
         // }
 
-        public void RegisterDataPersistence(IDataPersistence dataPersistence){
-            if(!dataPersistenceObjects.Contains(dataPersistence)){
+        void Update()
+        {
+            if(Input.GetKeyDown(KeyCode.S))
+            {
+                SaveGame(0);
+            }
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                LoadGame(0);
+            }
+        }
+
+        public void RegisterDataPersistence(IDataPersistence dataPersistence)
+        {
+            if (!dataPersistenceObjects.Contains(dataPersistence))
+            {
                 dataPersistenceObjects.Add(dataPersistence);
             }
         }
@@ -44,6 +61,7 @@ namespace CQTacticsToolkit.SaveSystem{
         public void NewGame(out GameData gameData)
         {
             gameData = new GameData();
+            // DialogueManager.ResetDatabase(DatabaseResetOptions.RevertToDefault);
         }
 
         /// <summary>
@@ -54,7 +72,8 @@ namespace CQTacticsToolkit.SaveSystem{
             currentDataIndex = saveIndex;
             var resultPath = saveFilePath + "save" + saveIndex + ".sav";
             GameData loadGameData = null;
-            if(File.Exists(resultPath)){
+            if (File.Exists(resultPath))
+            {
                 try
                 {
                     var stringData = File.ReadAllText(resultPath);
@@ -66,7 +85,8 @@ namespace CQTacticsToolkit.SaveSystem{
                     Debug.Log($"尝试读取文件:{resultPath}数据出错。\n{e}");
                 }
             };
-            if(loadGameData == null){
+            if (loadGameData == null)
+            {
                 Debug.Log($"没有{saveIndex}号存档");
                 NewGame(out loadGameData);
             }
@@ -79,7 +99,7 @@ namespace CQTacticsToolkit.SaveSystem{
         }
 
         public void SaveGame(int saveIndex)
-        {   
+        {
             gameData = new GameData();
             // 保存游戏
             foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects)
@@ -96,12 +116,14 @@ namespace CQTacticsToolkit.SaveSystem{
             }
             // Debug.Log("DATA" + saveIndex + "SAVED!");
             File.WriteAllText(resultPath, jsonData);
+            Debug.Log(resultPath);
         }
 
         /// <summary>
         /// 读取所有存档的游戏数据
         /// </summary>
-        private void ReadGameData(){
+        private void ReadGameData()
+        {
             if (Directory.Exists(saveFilePath))
             {
                 for (int i = 0; i < dataSlots.Count; i++)
@@ -117,8 +139,9 @@ namespace CQTacticsToolkit.SaveSystem{
             }
         }
         //退出自动保存
-        private void OnApplicationQuit() {
-            // SaveGame(0);
+        private void OnApplicationQuit()
+        {
+            SaveGame(currentDataIndex);
         }
 
         /// <summary>

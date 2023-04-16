@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using CQFramework;
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     public class TurnOrderDisplay : MonoBehaviour
     {
@@ -20,12 +20,12 @@ namespace CQTacticsToolkit
             EventHandler.EnterBattle -= OnEnterBattle;
             EventHandler.EndBattle -= OnEndBattle;
         }
-        private void OnEnterBattle(List<Character> EnemyTeam)
+        private void OnEnterBattle(BattleTrigger battleTrigger)
         {
             if (TurnBasedController.Instance.isBattleing) return;
             GetComponent<Page>().Enter(false);
         }
-        private void OnEndBattle(bool isVictory)
+        private void OnEndBattle(BattleResult battleResult)
         {
             GetComponent<Page>().Exit(false);
         }

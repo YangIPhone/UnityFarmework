@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     //实体的属性
     [Serializable]

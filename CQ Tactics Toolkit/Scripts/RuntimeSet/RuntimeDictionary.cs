@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CQTacticsToolkit{
+namespace CQFramework.CQTacticsToolkit{
     public class RuntimeDictionary<T, T2> : ScriptableObject
     {
         [SerializeField]

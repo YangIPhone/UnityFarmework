@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CQTacticsToolkit{
+namespace CQFramework{
     /// <summary>
     /// 瓦片类型
     /// </summary>
@@ -54,10 +54,18 @@ namespace CQTacticsToolkit{
         MinusByPercentage//乘百分比
         // 加,减,乘,除,加百分比,乘百分比
     }
+    public enum ItemType
+    {
+        材料, 消耗品, 装备, 图纸, 功法秘籍, 任务物品
+    }
+    public enum ItemQuality
+    {
+        凡品, 下品, 中品, 上品, 极品
+    }
     /// <summary>
     /// 人物境界(等级)
     /// </summary>
-    public enum CharacterLevel
+    public enum Level
     {
         未修炼,锻体, 炼气, 筑基, 金丹,元婴,化神,炼虚,合道,渡劫,大乘
     }
@@ -118,6 +126,7 @@ namespace CQTacticsToolkit{
         Enemy,//敌人
         All//所有人
     }
+
     /// <summary>
     /// 战斗AI行动策略
     /// </summary>
@@ -126,5 +135,38 @@ namespace CQTacticsToolkit{
         Aggressive,//积极进攻,在尽可能靠近的同时攻击最近的角色。
         Defensive,//保守，攻击距离最近的角色，同时保持最大距离。
         Strategic//策略，攻击生命值最低的角色，同时保持最大距离
+    }
+
+    /// <summary>
+    /// 战斗触发方式
+    /// </summary>
+    public enum BattleTriggerType{
+        点击UI进入,
+        触发器,//触发器方式
+        对话,//对话方式
+        主线战斗//主线剧情触发
+    }
+
+    /// <summary>
+    /// 胜利条件
+    /// </summary>
+    public enum VictoryCondition{
+        AllEnemyDie,//所有敌人死亡
+        OverTurnCount,//存活超过回合
+    }
+    /// <summary>
+    /// 失败条件
+    /// </summary>
+    public enum LoseCondition
+    {
+        AllPlayerDie,//所有玩家死亡
+        CharacterDie,//指定人物死亡
+        OverTurnCount,//超过回合未结束战斗
+    }
+
+    public enum BattleResult{
+        Victory,//胜利
+        Lose,//失败
+        Flee,//逃跑
     }
 }

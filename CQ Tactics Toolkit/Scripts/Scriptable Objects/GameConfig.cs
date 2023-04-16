@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     [CreateAssetMenu(fileName = "GameConfig", menuName = "CQ Tactics Toolkit/Config/GameConfig", order = 1)]
     public class GameConfig : ScriptableObject

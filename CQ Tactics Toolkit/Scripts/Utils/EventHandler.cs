@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using CQTacticsToolkit;
+using CQFramework.CQTacticsToolkit;
 
 namespace CQFramework
 {
@@ -91,19 +91,19 @@ namespace CQFramework
         /// <summary>
         /// 进入战斗
         /// </summary>
-        public static event Action<List<Character>> EnterBattle;
-        public static void CallEnterBattle(List<Character> characters = null)
+        public static event Action<BattleTrigger> EnterBattle;
+        public static void CallEnterBattle(BattleTrigger battleTrigger)
         {
-            EnterBattle?.Invoke(characters);
+            EnterBattle?.Invoke(battleTrigger);
         }
 
         /// <summary>
         /// 结束战斗
         /// </summary>
-        public static event Action<bool> EndBattle;
-        public static void CallEndBattle(bool isVictory)
+        public static event Action<BattleResult> EndBattle;
+        public static void CallEndBattle(BattleResult battleResult)
         {
-            EndBattle?.Invoke(isVictory);
+            EndBattle?.Invoke(battleResult);
         }
 
         // /// <summary>

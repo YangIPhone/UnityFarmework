@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using CQFramework;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     public class CharacterBattleAI : Character
     {
@@ -96,7 +96,7 @@ namespace CQTacticsToolkit
                     var senarioValue = GetStat<int>(Stats.Strenght.ToString())
                         + closestDistance
                         - targetCharacter.GetStat<int>(Stats.CurrentHealth.ToString());
-                    //可以进行攻击
+                    //TODO 可以杀死目标,直接进行攻击,消耗最小化
                     if (targetCharacter.GetStat<int>(Stats.CurrentHealth.ToString()) < GetStat<int>(Stats.Strenght.ToString()))
                     {
                         senarioValue = 10000;
@@ -147,7 +147,7 @@ namespace CQTacticsToolkit
                 var closestDistance = PathFinder.Instance.GetManhattenDistance(position, targetCharacter.activeTile);
 
                 //检查最近的角色是否在攻击范围内，并确保我们不在角色的瓦片上。
-                if (closestDistance <= GetStat<int>(Stats.AttackRange.ToString()) && position != targetCharacter)
+                if (closestDistance <= GetStat<int>(Stats.AttackRange.ToString()) && position.gridLocation != targetCharacter.activeTile.gridLocation)
                 {
                     // var targetTile = GetClosestNeighbour(targetCharacter.activeTile);
 
@@ -197,7 +197,7 @@ namespace CQTacticsToolkit
             var noCharacterInRange = true;
             foreach (var player in playerCharacters)
             {
-                if (player.isAlive && player.activeTile)
+                if (player.isAlive && player.activeTile!=null)
                 {
                     // var currentDistance = pathFinder.GetManhattenDistance(position, player.activeTile);
                     var currentDistance = PathFinder.Instance.GetManhattenDistance(position, player.activeTile);
@@ -290,16 +290,16 @@ namespace CQTacticsToolkit
             if (bestSenario.targetAbility.ability.includeOrigin) abilityAffectedTiles.Add(bestSenario.targetTile);
             OverlayController.Instance.ColorTiles(OverlayController.Instance.AttackRangeColor, abilityAffectedTiles);
             yield return new WaitForSeconds(0.5f);
+            EventHandler.CallLogAction($"{characterClass.characterName}释放了{bestSenario.targetAbility.ability.AbilityName}");
             //通知AbilityController释放这个技能
             // EventHandler.CallAbilityCommand(abilityAffectedTiles,bestSenario.targetAbility,this);
             AbilityController.Instance.OnAIAbilityCommand(abilityAffectedTiles, bestSenario.targetAbility, this);
-            EventHandler.CallLogAction($"{characterClass.characterName}释放了{bestSenario.targetAbility.ability.AbilityName}");
             //TODO 结束回合或者开始一个新策略
             StartCoroutine(CalculateBestSenario());
         }
 
         /// <summary>
-        /// 应用普通并攻击目标
+        /// 应用普通攻击并攻击目标
         /// </summary>
         /// <param name="targetedCharacter"></param>
         /// <returns></returns>
@@ -358,7 +358,7 @@ namespace CQTacticsToolkit
                         senario = CheckSenarioValueIfNoTarget(senario, tile, tempSenario);
                     }
                 }
-                if (senario.positionTile)
+                if (senario.positionTile!=null)
                 {
                     ApplyBestSenario(senario);
                 }
@@ -453,14 +453,14 @@ namespace CQTacticsToolkit
         /// <returns></returns>
         private Senario CheckSenarioValueIfNoTarget(Senario senario, OverlayTile tile, Senario tempSenario)
         {
-            if (tempSenario.positionTile == null && !senario.targetTile)
+            if (tempSenario.positionTile == null && senario.targetTile==null)
             {
                 var targetCharacter = FindClosestToDeathCharacter(tile);
                 if (targetCharacter)
                 {
                     var targetTile = GetClosestNeighbour(targetCharacter.activeTile);
 
-                    if (targetCharacter && targetTile)
+                    if (targetCharacter!=null && targetTile!=null)
                     {
                         // var pathToCharacter = pathFinder.FindPath(tile, targetTile,this, new List<OverlayTile>());
                         var pathToCharacter = PathFinder.Instance.FindPath(tile, targetTile, this, new List<OverlayTile>());
@@ -473,7 +473,7 @@ namespace CQTacticsToolkit
                                 var tileEffectValue = GetEffectsSenarioValue(new List<BuffEffect>() { tile.tileData.effect }, new List<Character>() { this });
                                 senarioValue -= tileEffectValue;
                             }
-                            if (tile.grid2DLocation != activeTile.grid2DLocation && tile.grid2DLocation != targetCharacter.activeTile.grid2DLocation && (senarioValue > senario.senarioValue || !senario.positionTile))
+                            if (tile.gridLocation != activeTile.gridLocation && tile.gridLocation != targetCharacter.activeTile.gridLocation && (senarioValue > senario.senarioValue || senario.positionTile==null))
                                 senario = new Senario(senarioValue, null, null, tile, false);
                         }
                     }
@@ -519,6 +519,7 @@ namespace CQTacticsToolkit
                 //基础攻击的策略值
                 attackSenario = AutoAttackBasedOnPersonality(overlayTile);
             }
+            //计算技能策略
             foreach (var abilityContainer in abilitiesForUse)
             {
                 if (GetStat<int>(Stats.CurrentMana.ToString()) >= abilityContainer.ability.cost && 
@@ -550,12 +551,10 @@ namespace CQTacticsToolkit
             foreach (var tile in tilesInAbilityRange)
             {
                 var abilityAffectedTiles = shapeParser.GetAbilityTileLocations(tile, abilityContainer.ability.abilityShape, position.grid2DLocation,abilityContainer.ability.abilityHeight);
-
                 //该技能可以击中多少玩家
                 var players = FindAllCharactersInTiles(abilityAffectedTiles);
                 //将技能的BUFF影响算入senario值
                 var totalAbilityDamage = GetEffectsSenarioValue(abilityContainer.ability.effects, players);
-
                 if (players.Count > 0)
                 {
                     var totalPlayerHealth = 0;
@@ -618,8 +617,6 @@ namespace CQTacticsToolkit
                             var value = character.GetStat<int>(Stats.CurrentHealth.ToString()) / 100 * effect.Value;
                             totalDamage += Mathf.RoundToInt(value * (effect.Duration > 0 ? effect.Duration : 1));
                         }
-
-
                         if (totalDamage >= character.GetStat<int>(Stats.CurrentHealth.ToString()))
                             totalSenarioValue += 10000;
                         else

@@ -2,24 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using CQFramework;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {    
     public class MapManager : MonoBehaviour
     {
         private static MapManager _instance;
         public static MapManager Instance { get { return _instance; } }
         public GameConfig gameConfig;
-        public OverlayTile overlayTilePrefab;
-        public GameObject overlayContainer;
+        // public OverlayTile overlayTilePrefab;
+        // public GameObject overlayContainer;
         public TileDataRuntimeSet tileTypeList;
         public Dictionary<Vector3Int, OverlayTile> map;
         public Dictionary<Vector2Int, OverlayTile> map2D;
         public bool mapIsInited = false;
         public Dictionary<TileBase, TileData_SO> dataFromTiles = new Dictionary<TileBase, TileData_SO>();
+        [Header("瓦片地图")]
         public List<Tilemap> tilemaps;
-        [Header("通行辅助层")]
         public Tilemap 通行辅助层;
         public Character activeCharacter; //当前活动人物
         public void Awake()
@@ -68,16 +67,17 @@ namespace CQTacticsToolkit
                         // }
                         if (tilemap.HasTile(tileLocation) && !map.ContainsKey(tileKey))
                         {
-
                             if (!通行辅助层.HasTile(tileKey) && map2D.ContainsKey(tile2DKey))
                             {
                                 continue;
                             }
                             //TODO new overlayTile而不是创建
-                            var overlayTile = Instantiate(overlayTilePrefab, overlayContainer.transform);
+                            // var overlayTile = Instantiate(overlayTilePrefab, overlayContainer.transform);
+                            var overlayTile = new OverlayTile();
                             var cellWorldPosition = tilemap.GetCellCenterWorld(tileLocation);
                             var baseTile = tilemap.GetTile(tileLocation);
-                            overlayTile.transform.position = new Vector3(cellWorldPosition.x, cellWorldPosition.y, tilemap.transform.position.z);
+                            overlayTile.gridWorldPosition = new Vector3(cellWorldPosition.x, cellWorldPosition.y, tilemap.transform.position.z);
+                            // overlayTile.transform.position = new Vector3(cellWorldPosition.x, cellWorldPosition.y, tilemap.transform.position.z);
                             overlayTile.SetSortLayer(tilemap.GetComponent<TilemapRenderer>().sortingLayerName, tilemap.GetComponent<TilemapRenderer>().sortingOrder + 1);
                             overlayTile.gridLocation = tileKey;
                             if(通行辅助层.HasTile(tileKey))
@@ -87,6 +87,7 @@ namespace CQTacticsToolkit
                                 if(overlayTile.可通行方向 == "obstacle")
                                 {
                                     overlayTile.isBlocked = true;
+                                    overlayTile.isOriginBlocked = true;
                                 }
                             } 
                             if(!map2D.ContainsKey(tile2DKey))
@@ -98,12 +99,13 @@ namespace CQTacticsToolkit
                                 overlayTile.tileData = dataFromTiles[baseTile];
                                 if (dataFromTiles[baseTile].type == TileTypes.NonTraversable)
                                     overlayTile.isBlocked = true;
+                                    overlayTile.isOriginBlocked = true;
                             }
                             map.Add(tileKey, overlayTile);
                         }
                         count++;
                         //每循环100次就等待下一帧继续(分帧创建，防止瓦片过多卡死)
-                        if (count % 100 == 0)
+                        if (count % 5000 == 0)
                         {
                             yield return null;
                         }
@@ -142,9 +144,10 @@ namespace CQTacticsToolkit
             }
 
             List<OverlayTile> neighbours = new List<OverlayTile>();
+            int height = ignoreObstacles?tilemaps.Count:1;
             if (currentOverlayTile != null)
             {
-                for (int z_index = -1; z_index <= 1; z_index++){
+                for (int z_index = -height; z_index <= height; z_index++){
                     //up
                     Vector3Int locationToCheck = new Vector3Int(
                         currentOverlayTile.gridLocation.x,
@@ -205,27 +208,30 @@ namespace CQTacticsToolkit
             if(tilesToSearch.ContainsKey(locationToCheck) && closeList.Contains(tilesToSearch[locationToCheck])){
                 return;
             }
+            // if(tilesToSearch.ContainsKey(locationToCheck) && ignoreObstacles){
+            //     neighbours.Add(tilesToSearch[locationToCheck]);
+            //     closeList.Add(tilesToSearch[locationToCheck]);
+            //     return;
+            // }
             if (tilesToSearch.ContainsKey(locationToCheck)&&(ignoreObstacles ||
                 (!ignoreObstacles && !tilesToSearch[locationToCheck].isBlocked) ||
                 (!ignoreObstacles &&
                 walkThroughAllies &&
                 (tilesToSearch[locationToCheck].activeCharacter && character!=null && tilesToSearch[locationToCheck].activeCharacter.teamID == character.teamID))))
             {
-                if(currentOverlayTile.gridLocation.x==11&&currentOverlayTile.gridLocation.y == 4&&currentOverlayTile.gridLocation.z == 2){
-                }
-                if(currentOverlayTile.可通行方向 != "" && currentOverlayTile.可通行方向.Contains(direction)){
+                if(ignoreObstacles || (currentOverlayTile.可通行方向 != "" && currentOverlayTile.可通行方向.Contains(direction))){
                     // tilesToSearch[locationToCheck].ShowTile(Instance.gameConfig.AttackRangeColor);
                     neighbours.Add(tilesToSearch[locationToCheck]);
                     closeList.Add(tilesToSearch[locationToCheck]);
                     return;
-                }else if (tilesToSearch[locationToCheck].可通行方向 != "" && tilesToSearch[locationToCheck].可通行方向.Contains(negativeDirection))
+                }else if (ignoreObstacles || (tilesToSearch[locationToCheck].可通行方向 != "" && tilesToSearch[locationToCheck].可通行方向.Contains(negativeDirection)))
                 {
                     // tilesToSearch[locationToCheck].ShowTile(Instance.gameConfig.AttackRangeColor);
                     neighbours.Add(tilesToSearch[locationToCheck]);
                     closeList.Add(tilesToSearch[locationToCheck]);
                     return;
                 }
-                if(currentOverlayTile.可通行方向 == "" && tilesToSearch[locationToCheck].可通行方向 == ""){
+                if(ignoreObstacles || (currentOverlayTile.可通行方向 == "" && tilesToSearch[locationToCheck].可通行方向 == "")){
                     // tilesToSearch[locationToCheck].ShowTile(Instance.gameConfig.AttackRangeColor);
                     neighbours.Add(tilesToSearch[locationToCheck]);
                     closeList.Add(tilesToSearch[locationToCheck]);

@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Reflection;
 using CQFramework.Utils;
 
-namespace CQTacticsToolkit{
+namespace CQFramework.CQTacticsToolkit{
     public class CharacterClass : MonoBehaviour
     {
         [Header("人物ID")]
@@ -33,7 +33,7 @@ namespace CQTacticsToolkit{
         public int MoveRange = 3;
         // [SerializeField]public int MoveRange = 3;//移动范围
         [Header("境界")]
-        [SerializeField] public CharacterLevel level = CharacterLevel.未修炼;
+        [SerializeField] public Level level = Level.未修炼;
         [Header("灵根")]
         [SerializeField] public CharacterAttribute attribute;
         [Header("技能列表")]

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     /// <summary>
     /// 用于敌人AI。一个Senario是敌人可以采取的策略。

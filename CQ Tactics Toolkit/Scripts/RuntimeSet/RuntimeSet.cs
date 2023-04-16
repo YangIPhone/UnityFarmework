@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CQTacticsToolkit{
+namespace CQFramework.CQTacticsToolkit{
     public class RuntimeSet<T> : ScriptableObject
     {
         public List<T> items = new List<T>();

@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using CQFramework;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     public class TurnBasedController : MonoBehaviour
     {
@@ -21,16 +21,14 @@ namespace CQTacticsToolkit
         [Header("是否正在战斗中")]
         public bool isBattleing = false;
         public TurnSorting turnSorting = TurnSorting.ConstantAttribute;
-
+        public bool ignorePlayers = false; //是否忽略玩家
+        public bool ignoreEnemies = false;//是否忽略敌人
         //TODO 设置新角色回合事件
         // public GameEventGameObject startNewCharacterTurn;
         //TODO 
         // public GameEventGameObjectList turnOrderSet;
-
-        public List<Character> combinedList;
-
-        public bool ignorePlayers = false; //是否忽略玩家
-        public bool ignoreEnemies = false;//是否忽略敌人
+        private List<Character> combinedList;
+        private BattleTrigger battleTrigger;
         private void Awake()
         {
             if (_instance != null && _instance != this)
@@ -52,22 +50,24 @@ namespace CQTacticsToolkit
             EventHandler.EndTurn -= OnEndTurn;
         }
 
-        public void EnterBattle(List<Character> EnemyTeam = null)
+        public void EnterBattle(BattleTrigger battleTrigger)
         {
-            if (isBattleing) 
+            //如果有中途加入的战斗，战斗结束条件以及结束后的回调会换成新触发的战斗
+            this.battleTrigger = battleTrigger;
+            if (isBattleing)
             {
-                if(EnemyTeam != null && EnemyTeam.Count > 0)
+                if(battleTrigger.EnemyTeam != null && battleTrigger.EnemyTeam.Count > 0)
                 {
-                    foreach (var newEnemy in EnemyTeam)
+                    foreach (var newEnemy in battleTrigger.EnemyTeam)
                     {
                         SpawnNewCharacter(newEnemy);
                     }
                 }
                 return;
             };
-            if(EnemyTeam!=null&&EnemyTeam.Count>0&&!ignoreEnemies) 
+            if(battleTrigger.EnemyTeam!=null&&battleTrigger.EnemyTeam.Count>0&&!ignoreEnemies) 
             {
-                this.EnemyTeam.AddRange(EnemyTeam);
+                this.EnemyTeam.AddRange(battleTrigger.EnemyTeam);
                 foreach (var enemy in EnemyTeam)
                 {
                     enemy.isBattle = true;
@@ -84,7 +84,7 @@ namespace CQTacticsToolkit
             turnCount = 1;
             Invoke("StartBattle",0.5f);
         }
-        public void EndBattle()
+        public void EndBattle(BattleResult battleResult)
         {
             OverlayController.Instance.ClearTiles();
             foreach (var enemy in EnemyTeam)
@@ -103,8 +103,18 @@ namespace CQTacticsToolkit
             PlayerTeam.Clear();
             OtherTeam.Clear ();
             isBattleing=false;
-            bool 战斗结果=false;
-            EventHandler.CallEndBattle(战斗结果);
+            battleTrigger.OnEndBattle(battleResult);
+            battleTrigger = null;
+            EventHandler.CallEndBattle(battleResult);
+        }
+
+        public BattleTrigger GetBattleTrigger()
+        {
+            if(isBattleing&&battleTrigger)
+            {
+                return battleTrigger;
+            }
+            return null;
         }
         //Sort the team turn order based on TurnSorting.
         private void SortTeamOrder(bool updateListSize = false)
@@ -159,7 +169,7 @@ namespace CQTacticsToolkit
         }
 
         //TODO 角色结束回合，更新回合并开始一个新的角色回合。
-        public void OnEndTurn()
+        private void OnEndTurn()
         {
             AttachTileEffects();
             var currentCharacter = combinedList.First();
@@ -189,48 +199,6 @@ namespace CQTacticsToolkit
                 }
             }
         }
-
-        // public void OnEndTurn()
-        // {
-        //     if (combinedList.Count > 0)
-        //     {
-        //         FinaliseEndCharactersTurn();
-        //         SortTeamOrder();
-        //         foreach (var character in combinedList)
-        //             character.isActive = false;
-
-        //         if (combinedList.Where(x => x.isAlive).ToList().Count > 0)
-        //         {
-        //             var firstCharacter = combinedList.First();
-
-        //             if (firstCharacter.isAlive)
-        //             {
-        //                 firstCharacter.isActive = true;
-        //                 firstCharacter.ApplyEffects();
-
-        //                 if (firstCharacter.isAlive)
-        //                 {
-        //                     firstCharacter.StartTurn();
-        //                     //TODO 发送切换角色事件
-        //                     EventHandler.CallStartNewCharacterTurn(firstCharacter);
-        //                 }
-        //                 else
-        //                     OnEndTurn();
-
-
-        //                 foreach (var ability in firstCharacter.abilitiesForUse)
-        //                 {
-        //                     ability.turnsSinceUsed++;
-        //                 }
-        //             }
-        //             else
-        //             {
-        //                 OnEndTurn();
-        //             }
-        //         }
-        //     }
-        // }
-
         /// <summary>
         /// 添加瓦片效果
         /// </summary>
@@ -238,7 +206,7 @@ namespace CQTacticsToolkit
         {
             var characterEndingTurn = combinedList.First();
 
-            if (characterEndingTurn.activeTile && characterEndingTurn.activeTile.tileData)
+            if (characterEndingTurn.activeTile!=null && characterEndingTurn.activeTile.tileData)
             {
                 //添加瓦片效果
                 var tileEffect = characterEndingTurn.activeTile.tileData.effect;
@@ -323,15 +291,25 @@ namespace CQTacticsToolkit
             if(BattleIsOver())
             {
                 Debug.Log("战斗结束");
-                EndBattle();
+                // EndBattle();
             }else{
                 EventHandler.CallTurnOrderUpdated(combinedList.ToList());
             }
         }
 
+        //TODO 判断战斗是否结束
         private bool BattleIsOver()
         {
-            return PlayerTeam.Count==0||EnemyTeam.Count==0;
+            if(PlayerTeam.Count == 0){
+                EndBattle(BattleResult.Lose);
+                return true;
+            }
+            if (EnemyTeam.Count == 0)
+            {
+                EndBattle(BattleResult.Victory);
+                return true;
+            }
+            return false;
         }
     }
 

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CQTacticsToolkit{    
+namespace CQFramework.CQTacticsToolkit{    
     public static class ArrowTranslator
     {
         public static ArrowDirection TranslateDirection(OverlayTile previousTile, OverlayTile currentTile, OverlayTile futureTile)

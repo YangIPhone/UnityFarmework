@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     public class TeamContainer : MonoBehaviour
     {

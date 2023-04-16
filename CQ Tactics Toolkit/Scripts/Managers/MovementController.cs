@@ -5,7 +5,7 @@ using UnityEngine;
 using CQFramework;
 using UnityEngine.EventSystems;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     public class MovementController : MonoBehaviour
     {
@@ -15,7 +15,7 @@ namespace CQTacticsToolkit
         [Header("是否可穿过盟友")]
         public bool moveThroughAllies = true;
         [Header("是否忽略障碍物")]
-        public bool ignoreObstacles = true;
+        public bool ignoreObstacles = false;
         [SerializeField] private bool movementModeEnabled = false;
         [SerializeField] private bool isMoving = false;
         [SerializeField] private OverlayTile focusedTile;
@@ -52,16 +52,16 @@ namespace CQTacticsToolkit
             {
                 return;
             }
-            if (focusedTile && isNewFocusedTile)
+            if (focusedTile!=null && isNewFocusedTile)
             {
-                if (inRangeTiles.Contains(focusedTile) && movementModeEnabled && !isMoving && !focusedTile.isBlocked&&TurnBasedController.Instance.isBattleing)
+                if (inRangeTiles.Contains(focusedTile) && movementModeEnabled && !isMoving && TurnBasedController.Instance.isBattleing)
                 {
                     foreach (var item in path)
                     {
                         item.SetArrowSprite(ArrowDirection.None);
                     }
                     // path = pathFinder.FindPath(activeCharacter.activeTile, focusedTile,activeCharacter, inRangeTiles, false, moveThroughAllies);
-                    path = PathFinder.Instance.FindPath(activeCharacter.activeTile, focusedTile, activeCharacter, inRangeTiles, false, moveThroughAllies);
+                    path = PathFinder.Instance.FindPath(activeCharacter.activeTile, focusedTile, activeCharacter, inRangeTiles, ignoreObstacles, moveThroughAllies);
                     isNewFocusedTile = false;
                     for (int i = 0; i < path.Count; i++)
                     {
@@ -74,19 +74,19 @@ namespace CQTacticsToolkit
             }
             if (Input.GetMouseButtonDown(0)&&!EventSystem.current.IsPointerOverGameObject()&&MapManager.Instance.mapIsInited)
             {
-                if (TurnBasedController.Instance.isBattleing && movementModeEnabled && path.Count > 0)
+                if (TurnBasedController.Instance.isBattleing &&!focusedTile.isBlocked && movementModeEnabled && path.Count > 0)
                 {
                     isMoving = true;
                     activeCharacter.UpdateActionPoint(-1);
                     activeCharacter.SetPath(path);
                 }
                 //非战斗状态下自由移动
-                else if(focusedTile && !focusedTile.isBlocked && !TurnBasedController.Instance.isBattleing)
+                else if(focusedTile!=null && !focusedTile.isBlocked && !TurnBasedController.Instance.isBattleing)
                 {
                     activeCharacter = PlayerTeamContainer.Instance.characters[0];
                     path.Clear();
                     // path = pathFinder.FindPath(activeCharacter.activeTile, focusedTile, activeCharacter, null, ignoreObstacles);
-                    path = PathFinder.Instance.FindPath(activeCharacter.activeTile, focusedTile, activeCharacter, null, ignoreObstacles);
+                    path = PathFinder.Instance.FindPath(activeCharacter.activeTile, focusedTile, activeCharacter, null, ignoreObstacles,moveThroughAllies);
                     activeCharacter.SetPath(path);
                 }
             }
@@ -106,7 +106,7 @@ namespace CQTacticsToolkit
         private void GetMoveRangeTiles()
         {
             var moveColor = OverlayController.Instance.MoveRangeColor;
-            if (activeCharacter && activeCharacter.activeTile)
+            if (activeCharacter!=null && activeCharacter.activeTile!=null)
             {
                 // inRangeTiles = rangeFinder.GetTilesInRange(activeCharacter.activeTile, activeCharacter.characterClass.GetMoveRange(), activeCharacter, ignoreObstacles, false);
                 inRangeTiles = RangeFinder.Instance.GetTilesInRange(activeCharacter.activeTile, activeCharacter.characterClass.GetMoveRange(), activeCharacter, ignoreObstacles, false);
@@ -123,7 +123,7 @@ namespace CQTacticsToolkit
                 focusedTile = focusedOnTile;
                 isNewFocusedTile = true;
             }
-            if (movementModeEnabled && inRangeTiles.Where(x => x.grid2DLocation == focusedTile.grid2DLocation).Any() && !isMoving && showAttackRange&&TurnBasedController.Instance.isBattleing)
+            if (movementModeEnabled && inRangeTiles.Where(x => x.grid2DLocation == focusedTile.grid2DLocation).Any() && !isMoving && TurnBasedController.Instance.isBattleing)
                 ShowAttackRangeTiles(focusedTile);
         }
 
@@ -131,7 +131,8 @@ namespace CQTacticsToolkit
         {
             var attackColor = OverlayController.Instance.AttackRangeColor;
             // inAttackRangeTiles = rangeFinder.GetTilesInRange(focusedOnTile, activeCharacter.GetStat<int>(Stats.AttackRange.ToString()),activeCharacter, true, moveThroughAllies);
-            inAttackRangeTiles = RangeFinder.Instance.GetTilesInRange(focusedOnTile, activeCharacter.GetStat<int>(Stats.AttackRange.ToString()),activeCharacter, true, moveThroughAllies);
+            int range = showAttackRange ?activeCharacter.GetStat<int>(Stats.AttackRange.ToString()):0;
+            inAttackRangeTiles = RangeFinder.Instance.GetTilesInRange(focusedOnTile, range,activeCharacter, true, moveThroughAllies);
             OverlayController.Instance.ColorTiles(attackColor, inAttackRangeTiles);
         }
 

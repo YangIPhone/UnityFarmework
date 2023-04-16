@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace CQTacticsToolkit.SaveSystem{
+namespace CQFramework.SaveSystem{
     public interface IDataPersistence
     {
-        string GUID{get;}
+        // string GUID{get;}
         void ISaveData(ref GameData gameData);
         void ILoadData(GameData gameData);
 

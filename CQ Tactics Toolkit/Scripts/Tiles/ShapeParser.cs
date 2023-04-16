@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CQTacticsToolkit{
+namespace CQFramework.CQTacticsToolkit{
     public class ShapeParser
     {
         public List<OverlayTile> GetAbilityTileLocations(OverlayTile abilityPosition, TextAsset defaultAbility, Vector2Int characterPosition,int abilityHeight)

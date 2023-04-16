@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using CQFramework;
-namespace CQTacticsToolkit{
+namespace CQFramework.CQTacticsToolkit{
     public class CameraController : MonoBehaviour
     {
 

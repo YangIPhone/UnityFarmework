@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     public class PathFinder :MonoBehaviour
     {
@@ -23,6 +23,9 @@ namespace CQTacticsToolkit
         [SerializeField]private int maxSerchCount = 5000;
         public List<OverlayTile> FindPath(OverlayTile start, OverlayTile end,Character character = null, List<OverlayTile> searchableTiles = null, bool ignoreObstacles = false, bool walkTroughAllies = true)
         {
+            if(!MapManager.Instance.map.ContainsKey(end.gridLocation)){
+                return new List<OverlayTile>();
+            }
             int count = 0; //查找循环次数
             List<OverlayTile> openList = new List<OverlayTile>();
             List<OverlayTile> closedList = new List<OverlayTile>();

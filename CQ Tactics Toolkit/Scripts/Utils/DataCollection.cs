@@ -8,12 +8,17 @@ using UnityEngine;
 /// </summary>
 
 
-//背包物品项
-[Serializable]
-public struct InventoryItem
+/// <summary>
+/// 背包数据
+/// </summary>
+[System.Serializable]
+public class InventoryBagData
 {
-    public int itemID; //物品ID
-    public int Amount;//物品数量
-    public bool canUse;//是否可使用
-    // public bool canCumulative;//是否可叠加
+    public List<CQFramework.Inventory.InventoryItem> ItemList;
+    public int Money;
+    public InventoryBagData(List<CQFramework.Inventory.InventoryItem> ItemList, int Money)
+    {
+        this.ItemList = ItemList;
+        this.Money = Money;
+    }
 }

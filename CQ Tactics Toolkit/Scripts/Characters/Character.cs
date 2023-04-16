@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Rendering;
 using CQFramework;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     [RequireComponent(typeof(SortingGroup),typeof(CharacterClass))]
     public class Character : MonoBehaviour
@@ -31,7 +31,6 @@ namespace CQTacticsToolkit
         [HideInInspector]
         public bool isAlive = true;//是否存活
         public bool isActive;//是否是行动角色
-        [HideInInspector]
         public Vector2Int Direction;
         [HideInInspector]
         public SortingGroup myRenderer => gameObject.GetComponent<SortingGroup>();
@@ -342,16 +341,16 @@ namespace CQTacticsToolkit
         private void MoveAlongPath()
         {
             // var zIndex = characterPath[0].transform.position.z;
-            transform.position = Vector3.MoveTowards(transform.position, characterPath[0].transform.position, moveSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, characterPath[0].gridWorldPosition, moveSpeed * Time.deltaTime);
             // if (Vector3.Distance(transform.position, characterPath[0].transform.position) < 0.0001f)
-            if ((transform.position - characterPath[0].transform.position).sqrMagnitude < 0.0001f)
+            if ((transform.position - characterPath[0].gridWorldPosition).sqrMagnitude < 0.0001f)
             {
                 PositionCharacterOnTile(characterPath[0]);
                 characterPath.RemoveAt(0);
             }
             else
             {
-                SetDirection(characterPath[0].transform.position, transform.position);
+                SetDirection(characterPath[0].gridWorldPosition, transform.position);
             }
             if (characterPath.Count == 0)
             {
@@ -377,7 +376,7 @@ namespace CQTacticsToolkit
         public void SetDirection(Vector3 targetPos,Vector3 currentPos)
         {
             Vector3 tempDirection = (targetPos-currentPos).normalized;
-            Direction = new Vector2Int((int)tempDirection.x,(int)tempDirection.y);
+            Direction = new Vector2Int(Mathf.RoundToInt(tempDirection.x),Mathf.RoundToInt(tempDirection.y));
         }
         public void SetSortLayer(string sortingLayerName, int sortingOrder)
         {
@@ -389,7 +388,7 @@ namespace CQTacticsToolkit
         {
             if (tile != null)
             {
-                transform.position = new Vector3(tile.transform.position.x, tile.transform.position.y + 0.0001f, tile.transform.position.z);
+                transform.position = new Vector3(tile.gridWorldPosition.x, tile.gridWorldPosition.y + 0.0001f, tile.gridWorldPosition.z);
                 LinkCharacterToTile(tile);
             }
         }
@@ -407,10 +406,10 @@ namespace CQTacticsToolkit
         //将一个实体从它所在的前一个tile中断开链接。
         public void UnlinkCharacterToTile()
         {
-            if (activeTile)
+            if (activeTile!=null)
             {
                 activeTile.activeCharacter = null;
-                activeTile.isBlocked = false;
+                activeTile.isBlocked = activeTile.isOriginBlocked;//如果初始化时是障碍物，人物断开连接时设置回去
                 activeTile = null;
             }
         }

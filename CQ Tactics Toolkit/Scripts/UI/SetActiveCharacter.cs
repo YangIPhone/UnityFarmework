@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using CQFramework;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
 
     public class SetActiveCharacter : MonoBehaviour
@@ -33,13 +33,13 @@ namespace CQTacticsToolkit
             EventHandler.UpdateActionPoint -= OnUpdateActionPoint;
             EventHandler.StartNewCharacterTurn -= OnStartNewCharacterTurn;
         }
-        private void OnEnterBattle(List<Character> EnemyTeam)
+        private void OnEnterBattle(BattleTrigger battleTrigger  )
         {
             if (TurnBasedController.Instance.isBattleing) return;
             GetComponent<Page>().Enter(false);
         }
 
-        private void OnEndBattle(bool isVictory)
+        private void OnEndBattle(BattleResult battleResult)
         {
             GetComponent<Page>().Exit(false);
             // foreach (Transform child in ActionContainer)

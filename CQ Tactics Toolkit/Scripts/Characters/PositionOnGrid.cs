@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using CQFramework;
 
-namespace CQTacticsToolkit{
+namespace CQFramework.CQTacticsToolkit{
     //在启动时，将一个人物链接到最近的瓦片。
     public class PositionOnGrid : MonoBehaviour
     {
@@ -22,7 +22,7 @@ namespace CQTacticsToolkit{
             var closestTile = MapManager.Instance.GetOverlayByTransform(transform.position);
             if (closestTile != null)
             {
-                transform.position = closestTile.transform.position;
+                transform.position = closestTile.gridWorldPosition;
 
                 //this should be more generic
                 Character character = GetComponent<Character>();

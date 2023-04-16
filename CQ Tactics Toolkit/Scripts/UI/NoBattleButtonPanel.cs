@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using CQFramework;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     public class NoBattleButtonPanel : MonoBehaviour
     {
@@ -20,7 +20,7 @@ namespace CQTacticsToolkit
             EventHandler.EndBattle -= OnEndBattle;
         }
 
-        private void OnEnterBattle(List<Character> EnemyTeam)
+        private void OnEnterBattle(BattleTrigger battleTrigger)
         {
             if(TurnBasedController.Instance.isBattleing)return;
             EnterBattle();
@@ -33,7 +33,7 @@ namespace CQTacticsToolkit
                 item.gameObject.SetActive(false);
             }
         }
-        public void OnEndBattle(bool isVictory)
+        public void OnEndBattle(BattleResult battleResult)
         {
             GetComponent<Page>().Enter(false);
             foreach (RectTransform item in transform)

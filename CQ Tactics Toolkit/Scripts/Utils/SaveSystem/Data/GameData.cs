@@ -1,19 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace CQTacticsToolkit.SaveSystem{
+namespace CQFramework.SaveSystem{
     [System.Serializable]
     public class GameData
     {
         #region 需要保存的游戏数据
-        // public Dictionary<string,CharacterDataTest> characterData;
-        // public Dictionary<string,TestSOAttribute> testSO;
+        //背包数据
+        public Dictionary<string, InventoryBagData> InventoryBagDic;
+        //对话数据
+        public string DialogueData;
         #endregion
 
         //新游戏的数据
         public GameData(){
-            // characterData = new Dictionary<string,CharacterDataTest>();
-            // testSO = new Dictionary<string,TestSOAttribute>();
+            InventoryBagDic = new Dictionary<string, InventoryBagData>();
         }
     }
 

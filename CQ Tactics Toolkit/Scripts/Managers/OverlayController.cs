@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CQTacticsToolkit{
+namespace CQFramework.CQTacticsToolkit{
 
     /// <summary>
     /// 处理瓦片颜色
@@ -87,8 +87,8 @@ namespace CQTacticsToolkit{
             {
                 tile.ShowTile(color);
 
-                if (showBlock&&tile.isBlocked)
-                    tile.ShowTile(BlockedTileColor);
+                // if (showBlock&&tile.isBlocked)
+                //     tile.ShowTile(BlockedTileColor);
             }
 
             coloredTiles.Add(color, overlayTiles);

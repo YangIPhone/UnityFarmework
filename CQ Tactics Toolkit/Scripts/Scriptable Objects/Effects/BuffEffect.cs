@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     /// <summary>
     /// BuffEffects 是附加到瓦片或技能上的buff. 

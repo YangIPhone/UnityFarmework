@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-namespace CQTacticsToolkit{
+namespace CQFramework.CQTacticsToolkit{
     public class RangeFinder: MonoBehaviour
     {
         private static RangeFinder _instance;
@@ -69,6 +69,7 @@ namespace CQTacticsToolkit{
         /// <returns></returns>
         public List<OverlayTile> GetTilesInUseRange(OverlayTile startingTile, int useDistance)
         {
+            int tilemapCount = MapManager.Instance.tilemaps.Count;
             Vector3Int locationToCheck = startingTile.gridLocation;
             var inUseRangeTiles = new List<OverlayTile>();
             for (int x = 0 - useDistance; x <= useDistance; x++)
@@ -77,7 +78,7 @@ namespace CQTacticsToolkit{
                 {
                     if (Mathf.Abs(x) + Mathf.Abs(y) <= useDistance)
                     {
-                        for(int z = -2; z <= 2; z++){
+                        for(int z = -tilemapCount; z <= tilemapCount; z++){
                             locationToCheck = new Vector3Int(startingTile.gridLocation.x+x,startingTile.gridLocation.y + y,startingTile.gridLocation.z+z);
                             if(MapManager.Instance.map.ContainsKey(locationToCheck)){
                                 inUseRangeTiles.Add(MapManager.Instance.map[locationToCheck]);

@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using TMPro;
 using CQFramework;
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     public class ActionSlot : MonoBehaviour
     {

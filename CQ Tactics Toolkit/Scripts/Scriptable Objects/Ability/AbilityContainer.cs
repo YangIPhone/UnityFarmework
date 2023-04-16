@@ -1,4 +1,4 @@
-namespace CQTacticsToolkit{
+namespace CQFramework.CQTacticsToolkit{
     //记录最后一次使用某个能力的时间
     [System.Serializable]
     public class AbilityContainer

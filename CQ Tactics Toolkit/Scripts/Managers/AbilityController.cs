@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using CQFramework;
 
-namespace CQTacticsToolkit{
+namespace CQFramework.CQTacticsToolkit{
     public class AbilityController : MonoBehaviour
     {
         private static AbilityController _instance;
@@ -78,7 +78,6 @@ namespace CQTacticsToolkit{
             //附加BUFF效果
             foreach (var character in inRangeCharacters)
             {
-                Debug.Log($"{character.characterClass.characterName}收到伤害");
                 foreach (var effect in abilityContainer.ability.effects)
                 {
                     character.AttachEffect(effect);
@@ -158,13 +157,13 @@ namespace CQTacticsToolkit{
             if (abilityContainer != null && abilityContainer.ability!=null)
             {
                 var map = MapManager.Instance.map;
-                this.focusedOnTile = focusedOnTile.GetComponent<OverlayTile>();
+                this.focusedOnTile = focusedOnTile;
                 if (abilityRangeTiles.Contains(map[this.focusedOnTile.gridLocation]))
                 {
                     abilityAffectedTiles = shapeParser.GetAbilityTileLocations(this.focusedOnTile, abilityContainer.ability.abilityShape, activeCharacter.activeTile.grid2DLocation,abilityContainer.ability.abilityHeight);
                     if (abilityContainer.ability.includeOrigin)
                         abilityAffectedTiles.Add(this.focusedOnTile);
-                    OverlayController.Instance.ColorTiles(OverlayController.Instance.AttackRangeColor, abilityAffectedTiles,false);
+                    OverlayController.Instance.ColorTiles(OverlayController.Instance.AttackRangeColor, abilityAffectedTiles);
                 }
             }
         }
@@ -181,11 +180,13 @@ namespace CQTacticsToolkit{
             var abilityContainer = activeCharacter.abilitiesForUse.Find(x => x.ability.AbilityName == abilityName&&x.ability.AbilityID == abilityID);
             if (abilityContainer!=null&&abilityContainer.ability!= null)
             {
-                if(abilityContainer.ability.cost <= activeCharacter.characterClass.CurrentMana && abilityContainer.ability.costPoint <= activeCharacter.characterClass.CurrentActionPoint)
+                if(abilityContainer.ability.cost <= activeCharacter.characterClass.CurrentMana && 
+                    abilityContainer.ability.costPoint <= activeCharacter.characterClass.CurrentActionPoint &&
+                    abilityContainer.turnsSinceUsed>=abilityContainer.ability.cooldown)
                 {
                     // abilityRangeTiles = eventRangeController.GetTilesInUseRange(activeCharacter.activeTile, abilityContainer.ability.range);
                     abilityRangeTiles = RangeFinder.Instance.GetTilesInUseRange(activeCharacter.activeTile, abilityContainer.ability.range);
-                    OverlayController.Instance.ColorTiles(OverlayController.Instance.UseRangeColor, abilityRangeTiles,false);
+                    OverlayController.Instance.ColorTiles(OverlayController.Instance.UseRangeColor, abilityRangeTiles);
                     this.abilityContainer = abilityContainer;
                 }else{
                     //TODO 提示无法释放
@@ -203,7 +204,7 @@ namespace CQTacticsToolkit{
             abilityContainer = null;
         }
 
-        public void OnEndBattle(bool isVictory)
+        public void OnEndBattle(BattleResult battleResult)
         {
             CancelEventMode();
         }

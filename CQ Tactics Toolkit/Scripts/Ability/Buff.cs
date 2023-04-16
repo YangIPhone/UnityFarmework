@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     //附加到属性上的效果。可能是一个buff或debuff。
     public class Buff

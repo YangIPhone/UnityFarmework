@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     //生成包含角色类别和等级的角色属性。
     [CreateAssetMenu(fileName = "CharacterGrow", menuName = "CQ Tactics Toolkit/Character/CharacterGrow", order = 1)]

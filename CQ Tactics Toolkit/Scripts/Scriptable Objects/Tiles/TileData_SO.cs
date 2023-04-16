@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     [CreateAssetMenu(fileName = "TileData", menuName = "CQ Tactics Toolkit/ScriptableObjects/TileData", order = 0)]
     public class TileData_SO : ScriptableObject 

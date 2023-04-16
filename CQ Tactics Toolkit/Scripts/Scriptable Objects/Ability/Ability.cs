@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CQTacticsToolkit{
+namespace CQFramework.CQTacticsToolkit{
     [CreateAssetMenu(fileName = "Ability", menuName = "CQ Tactics Toolkit/Ability", order = 0)]
     public class Ability : ScriptableObject {
         [Header("技能ID")]

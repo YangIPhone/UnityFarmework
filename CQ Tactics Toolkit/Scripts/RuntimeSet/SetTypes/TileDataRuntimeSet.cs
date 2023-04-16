@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CQTacticsToolkit
+namespace CQFramework.CQTacticsToolkit
 {
     [CreateAssetMenu(fileName = "TileList", menuName = "CQ Tactics Toolkit/ScriptableObjects/TileList")]
     /// <summary>
